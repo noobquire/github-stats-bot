@@ -9,7 +9,12 @@
   <ItemGroup>
     <PackageReference Include="Octokit" Version="0.50.0" />
     <PackageReference Include="Octokit.Reactive" Version="0.47.0" />
+    <PackageReference Include="Octokit.Webhooks.AspNetCore" Version="0.3.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Interfaces\" />
   </ItemGroup>
 
 </Project>
