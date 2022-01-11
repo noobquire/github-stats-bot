@@ -1,4 +1,6 @@
+using GithubStatsBot;
 using GithubStatsBot.Services;
+using Octokit;
 using Octokit.Webhooks;
 using Octokit.Webhooks.AspNetCore;
 
@@ -12,6 +14,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<WebhookEventProcessor, IssuesEventProcessor>();
+builder.Services.AddScoped<StatisticsService>();
+builder.Services.AddScoped<NotificationCenter>();
+var githubClient = new GitHubClient(new ProductHeaderValue("noobquire"));
+githubClient.Credentials = new Credentials("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");
+builder.Services.AddSingleton(githubClient);
 
 var app = builder.Build();
 

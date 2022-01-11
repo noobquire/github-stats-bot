@@ -28,13 +28,14 @@ namespace GithubStatsBot.Services
         {
             List<TimeSpan> total = new List<TimeSpan>();
             var issues = await client.Issue.GetAllForRepository("noobquire", "github-stats-bot");
+            var collaborators = await client.Repository.Collaborator.GetAll("noobquire", "github-stats-bot");
 
             foreach (var issue in issues)
             {
                 var comments = await client.Issue.Comment.GetAllForIssue("noobquire", "github-stats-bot", issue.Number);
-                var firstComment = comments.FirstOrDefault(c => c.User.Permissions.Admin);
+                var firstComment = comments.FirstOrDefault(c => collaborators.Select(col => col.Id).Contains(c.User.Id));
 
-                if (firstComment is null)
+                if (firstComment == null)
                 {
                     continue;
                 }
@@ -42,25 +43,27 @@ namespace GithubStatsBot.Services
                 total.Add(firstComment.CreatedAt - issue.CreatedAt);
             }
 
-            return TimeSpan.FromHours(total.Select(s => s.TotalHours).Average());
+            var spans = total.Select(s => s.TotalHours);
+            if(spans.Any())
+            {
+                return TimeSpan.FromHours(spans.Average());
+            }
+
+            return TimeSpan.Zero;
         }
 
         private async Task<TimeSpan> GetAverageTimeBeforeBeingClosed()
         {
-            List<TimeSpan> total = new List<TimeSpan>();
             var issues = await client.Issue.GetAllForRepository("noobquire", "github-stats-bot");
 
-            foreach (var issue in issues)
+            var total = issues.Where(i => i.State == ItemState.Closed).Select(i => i.ClosedAt.Value - i.CreatedAt);
+
+            var spans = total.Select(s => s.TotalHours);
+            if (spans.Any())
             {
-                if (issue.ClosedAt is null)
-                {
-                    continue;
-                }
-
-                total.Add(issue.ClosedAt.Value - issue.CreatedAt);
+                return TimeSpan.FromHours(spans.Average());
             }
-
-            return TimeSpan.FromHours(total.Select(s => s.TotalHours).Average());
+            return TimeSpan.Zero;
         }
 
         private async Task<int> GetNumberOfIssuesCreated()
@@ -100,12 +103,13 @@ namespace GithubStatsBot.Services
                 Since = DateTimeOffset.Now.Subtract(TimeSpan.FromDays(7))
             };
             var issues = await client.Issue.GetAllForRepository("noobquire", "github-stats-bot", issueRequest);
+            var collaborators = await client.Repository.Collaborator.GetAll("noobquire", "github-stats-bot");
 
             foreach (var issue in issues)
             {
                 var comments = await client.Issue.Comment.GetAllForIssue("noobquire", "github-stats-bot", issue.Number);
 
-                if (comments.FirstOrDefault(c => c.User.Permissions.Admin) is null)
+                if (!comments.Any(c => collaborators.Any(col => col.Id == c.Id)))
                 {
                     result.Add(issue);
                 }
