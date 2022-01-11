@@ -72,15 +72,13 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: github-stats-bot
-          
-      - name: Debug
-        run: echo ${{ secrets.HOST }}
 
       - name: Copy to server via SSH
         id: deploy-to-webapp
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           source: "github-stats-bot"
