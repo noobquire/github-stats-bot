@@ -76,8 +76,8 @@ jobs:
       - name: copy file via ssh key
         uses: garygrossgarten/github-action-scp@release
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
+          host: oleksiilytvynov.tk
+          username: pi
           privateKey : ${{ secrets.KEY }}
           local: "./"
           remote: "~/github-stats-bot"
