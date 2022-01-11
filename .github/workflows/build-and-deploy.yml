@@ -17,7 +17,7 @@
 # For more information on the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples
 
-name: Build and deploy ASP.Net Core app to an Azure Web App
+name: Build and deploy ASP.Net Core app to remote server via SSH
 
 env:
   DOTNET_VERSION: '6.0.x'                 # set this to the .NET Core version to use
@@ -73,13 +73,15 @@ jobs:
         with:
           name: github-stats-bot
 
+      - name: LS
+        run: ls
+
       - name: copy file via ssh key
         uses: appleboy/scp-action@master
         with:
-          host: oleksiilytvynov.tk
-          username: pi
-          port: 22
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
           key: ${{ secrets.KEY }}
-          debug: true
           source: "github-stats-bot"
           target: "~/github-stats-bot"
