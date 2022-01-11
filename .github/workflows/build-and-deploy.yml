@@ -80,5 +80,6 @@ jobs:
           username: pi
           port: 22
           key: ${{ secrets.KEY }}
+          debug: true
           source: "github-stats-bot"
           target: "~/github-stats-bot"
