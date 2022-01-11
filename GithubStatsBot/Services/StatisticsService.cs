@@ -13,12 +13,19 @@ namespace GithubStatsBot.Services
             this.client = client;
         }
 
-        public Statistics CollectStatistics()
+        public async Task<Statistics> CollectStatistics()
         {
-            throw new NotImplementedException();
+            return new Statistics
+            {
+                AvgTimeBeforeFirstAnswer = await GetAverageTimeBeforeFirstAnswer(),
+                AvgTimeBeforeBeingClosed = await GetAverageTimeBeforeBeingClosed(),
+                NumberOfIssuesCreated = await GetNumberOfIssuesCreated(),
+                NumberOfIssuesClosed = await GetNumberOfIssuesClosed(),
+                UnansweredIssues = await GetUnansweredIssues()
+            };
         }
 
-        private async TimeSpan GetAverageTimeBeforeFirstAnswer()
+        private async Task<TimeSpan> GetAverageTimeBeforeFirstAnswer()
         {
             List<TimeSpan> total = new List<TimeSpan>();
             var issues = await client.Issue.GetAllForRepository("noobquire", "github-stats-bot");
@@ -39,30 +46,73 @@ namespace GithubStatsBot.Services
             return TimeSpan.FromHours(total.Select(s => s.TotalHours).Average());
         }
 
-        private async TimeSpan GetAverageTimeBeforeBeingClosed()
+        private async Task<TimeSpan> GetAverageTimeBeforeBeingClosed()
         {
             List<TimeSpan> total = new List<TimeSpan>();
             var issues = await client.Issue.GetAllForRepository("noobquire", "github-stats-bot");
 
             foreach (var issue in issues)
             {
+                if (issue.ClosedAt is null)
+                {
+                    continue;
+                }
 
+                total.Add(issue.ClosedAt.Value - issue.CreatedAt);
             }
+
+            return TimeSpan.FromHours(total.Select(s => s.TotalHours).Average());
         }
 
-        private ushort GetNumberOfIssuesCreated()
+        private async Task<int> GetNumberOfIssuesCreated()
         {
-            throw new NotImplementedException();
+            var issueRequest = new RepositoryIssueRequest
+            {
+                Filter = IssueFilter.All,
+                State = ItemStateFilter.All,
+                Since = DateTimeOffset.Now.Subtract(TimeSpan.FromDays(7))
+            };
+
+            var issues = await client.Issue.GetAllForRepository("noobquire", "github-stats-bot", issueRequest);
+            return issues.Count();
         }
 
-        private ushort GetNumberOfIssuesClosed()
+        private async Task<int> GetNumberOfIssuesClosed()
         {
-            throw new NotImplementedException();
+            var issueRequest = new RepositoryIssueRequest
+            {
+                Filter = IssueFilter.All,
+                State = ItemStateFilter.Closed,
+                Since = DateTimeOffset.Now.Subtract(TimeSpan.FromDays(7))
+            };
+
+            var issues = await client.Issue.GetAllForRepository("noobquire", "github-stats-bot", issueRequest);
+            return issues.Count();
         }
 
-        private List<Issue> GetAnsweredIssues()
+        private async Task<List<Issue>> GetUnansweredIssues()
         {
-            throw new NotImplementedException();
+            List<Issue> result = new List<Issue>();
+
+            var issueRequest = new RepositoryIssueRequest
+            {
+                Filter = IssueFilter.All,
+                State = ItemStateFilter.Open,
+                Since = DateTimeOffset.Now.Subtract(TimeSpan.FromDays(7))
+            };
+            var issues = await client.Issue.GetAllForRepository("noobquire", "github-stats-bot", issueRequest);
+
+            foreach (var issue in issues)
+            {
+                var comments = await client.Issue.Comment.GetAllForIssue("noobquire", "github-stats-bot", issue.Number);
+
+                if (comments.FirstOrDefault(c => c.User.Permissions.Admin) is null)
+                {
+                    result.Add(issue);
+                }
+            }
+
+            return result;
         }
     }
 }
