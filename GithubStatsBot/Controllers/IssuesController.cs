@@ -1,16 +1,13 @@
-﻿using GithubStatsBot.Services;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace GithubStatsBot.Controllers
 {
     [ApiController]
     public class IssuesController : Controller
     {
-        private readonly IssuesObserver issuesObserver;
 
-        public IssuesController(IssuesObserver issuesObserver)
+        public IssuesController()
         {
-            this.issuesObserver = issuesObserver;
         }
 
         [HttpGet]
