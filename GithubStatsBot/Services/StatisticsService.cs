@@ -1,5 +1,4 @@
 ﻿using GithubStatsBot.Models;
-using System.Linq;
 using Octokit;
 
 namespace GithubStatsBot.Services

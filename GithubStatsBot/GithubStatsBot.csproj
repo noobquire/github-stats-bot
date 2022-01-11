@@ -11,6 +11,7 @@
     <PackageReference Include="Octokit.Reactive" Version="0.47.0" />
     <PackageReference Include="Octokit.Webhooks.AspNetCore" Version="0.3.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Telegram.Bot" Version="17.0.0" />
   </ItemGroup>
 
   <ItemGroup>
