@@ -73,13 +73,12 @@ jobs:
         with:
           name: github-stats-bot
 
-      - name: Copy to server via SSH
-        id: deploy-to-webapp
+      - name: copy file via ssh key
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
+          key: ${{ secrets.KEY }}
           source: "github-stats-bot"
           target: "~/github-stats-bot"
