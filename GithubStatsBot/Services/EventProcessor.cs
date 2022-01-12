@@ -21,12 +21,12 @@ namespace GithubStatsBot.Services
             Console.WriteLine($"received webhook event {action} for issue {issuesEvent.Issue.Title}");
             if (action == IssuesAction.Opened)
             {
-                var msg = $"issue {issuesEvent.Issue.Title} opened by {issuesEvent.Issue.User.Name}";
+                var msg = $"issue {issuesEvent.Issue.Title} opened by {issuesEvent.Issue.User.Login}";
                 await _notificationCenter.SendNotification(NotificationType.IssueCreated, msg);
             }
             else if (action == IssuesAction.Closed)
             {
-                var msg = $"issue {issuesEvent.Issue.Title} closed by {issuesEvent.Issue.User.Name}";
+                var msg = $"issue {issuesEvent.Issue.Title} closed by {issuesEvent.Issue.User.Login}";
                 await _notificationCenter.SendNotification(NotificationType.IssueCreated, msg);
             }
         }
@@ -36,7 +36,7 @@ namespace GithubStatsBot.Services
             Console.WriteLine($"received webhook event {action} for release {releaseEvent.Release.Name}");
             if (action == ReleaseAction.Published)
             {
-                var msg = $"release {releaseEvent.Release.Name} published by {releaseEvent.Release.Author.Name}";
+                var msg = $"release {releaseEvent.Release.Name} published by {releaseEvent.Release.Author.Login}";
                 await _notificationCenter.SendNotification(NotificationType.ReleasePublished, msg);
             }
         }
@@ -46,17 +46,17 @@ namespace GithubStatsBot.Services
             Console.WriteLine($"received webhook event {action} for PR {pullRequestEvent.PullRequest.Title}");
             if (action == PullRequestAction.Opened)
             {
-                var msg = $"PR {pullRequestEvent.PullRequest.Title} opened by {pullRequestEvent.PullRequest.User.Name}";
+                var msg = $"PR {pullRequestEvent.PullRequest.Title} opened by {pullRequestEvent.PullRequest.User.Login}";
                 await _notificationCenter.SendNotification(NotificationType.PullRequestCreated, msg);
             }
             else if (action == PullRequestAction.Edited)
             {
-                var msg = $"PR {pullRequestEvent.PullRequest.Title} updated by {pullRequestEvent.PullRequest.User.Name}";
+                var msg = $"PR {pullRequestEvent.PullRequest.Title} updated by {pullRequestEvent.PullRequest.User.Login}";
                 await _notificationCenter.SendNotification(NotificationType.PullRequestCreated, msg);
             }
             else if (action == PullRequestAction.Closed)
             {
-                var msg = $"PR {pullRequestEvent.PullRequest.Title} closed by {pullRequestEvent.PullRequest.User.Name}";
+                var msg = $"PR {pullRequestEvent.PullRequest.Title} closed by {pullRequestEvent.PullRequest.User.Login}";
                 await _notificationCenter.SendNotification(NotificationType.PullRequestCreated, msg);
             }
         }
