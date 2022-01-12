@@ -13,7 +13,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<WebhookEventProcessor, IssuesEventProcessor>();
+builder.Services.AddSingleton<WebhookEventProcessor, EventProcessor>();
 builder.Services.AddSingleton<StatisticsService>();
 builder.Services.AddSingleton<NotificationCenter>();
 
