@@ -16,8 +16,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<WebhookEventProcessor, IssuesEventProcessor>();
 builder.Services.AddSingleton<StatisticsService>();
 builder.Services.AddSingleton<NotificationCenter>();
-var githubClient = new GitHubClient(new ProductHeaderValue("noobquire"));
-githubClient.Credentials = new Credentials("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");
+
+var owner = builder.Configuration.GetSection("MySettings:Github:owner").Value;
+var credentials = builder.Configuration.GetSection("MySettings:Github:secret").Value;
+
+var githubClient = new GitHubClient(new ProductHeaderValue("owner"));
+githubClient.Credentials = new Credentials(credentials);
+
 builder.Services.AddSingleton(githubClient);
 
 var app = builder.Build();

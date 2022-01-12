@@ -5,11 +5,19 @@ namespace GithubStatsBot.Services
 {
     public class StatisticsService
     {
-        private GitHubClient client;
+        private readonly string owner;
+        private readonly string repo;    
 
-        public StatisticsService(GitHubClient client)
+        private readonly GitHubClient client;
+        private readonly IConfiguration configuration;
+
+        public StatisticsService(GitHubClient client, IConfiguration configuration)
         {
+            this.configuration = configuration;
             this.client = client;
+
+            owner = configuration.GetSection("MySettings:Github:owner").Value;
+            repo = configuration.GetSection("MySettings:Github:project").Value;
         }
 
         public async Task<Statistics> CollectStatistics()
@@ -27,12 +35,12 @@ namespace GithubStatsBot.Services
         private async Task<TimeSpan> GetAverageTimeBeforeFirstAnswer()
         {
             List<TimeSpan> total = new List<TimeSpan>();
-            var issues = await client.Issue.GetAllForRepository("noobquire", "github-stats-bot");
-            var collaborators = await client.Repository.Collaborator.GetAll("noobquire", "github-stats-bot");
+            var issues = await client.Issue.GetAllForRepository(owner, repo);
+            var collaborators = await client.Repository.Collaborator.GetAll(owner, repo);
 
             foreach (var issue in issues)
             {
-                var comments = await client.Issue.Comment.GetAllForIssue("noobquire", "github-stats-bot", issue.Number);
+                var comments = await client.Issue.Comment.GetAllForIssue(owner, repo, issue.Number);
                 var firstComment = comments.FirstOrDefault(c => collaborators.Select(col => col.Id).Contains(c.User.Id));
 
                 if (firstComment == null)
@@ -54,15 +62,15 @@ namespace GithubStatsBot.Services
 
         private async Task<TimeSpan> GetAverageTimeBeforeBeingClosed()
         {
-            var issues = await client.Issue.GetAllForRepository("noobquire", "github-stats-bot");
-
+            var issues = await client.Issue.GetAllForRepository(owner, repo);
             var total = issues.Where(i => i.State == ItemState.Closed).Select(i => i.ClosedAt.Value - i.CreatedAt);
-
             var spans = total.Select(s => s.TotalHours);
+
             if (spans.Any())
             {
                 return TimeSpan.FromHours(spans.Average());
             }
+
             return TimeSpan.Zero;
         }
 
@@ -75,7 +83,7 @@ namespace GithubStatsBot.Services
                 Since = DateTimeOffset.Now.Subtract(TimeSpan.FromDays(7))
             };
 
-            var issues = await client.Issue.GetAllForRepository("noobquire", "github-stats-bot", issueRequest);
+            var issues = await client.Issue.GetAllForRepository(owner, repo, issueRequest);
             return issues.Count();
         }
 
@@ -88,7 +96,7 @@ namespace GithubStatsBot.Services
                 Since = DateTimeOffset.Now.Subtract(TimeSpan.FromDays(7))
             };
 
-            var issues = await client.Issue.GetAllForRepository("noobquire", "github-stats-bot", issueRequest);
+            var issues = await client.Issue.GetAllForRepository(owner, repo, issueRequest);
             return issues.Count();
         }
 
@@ -102,12 +110,12 @@ namespace GithubStatsBot.Services
                 State = ItemStateFilter.Open,
                 Since = DateTimeOffset.Now.Subtract(TimeSpan.FromDays(7))
             };
-            var issues = await client.Issue.GetAllForRepository("noobquire", "github-stats-bot", issueRequest);
-            var collaborators = await client.Repository.Collaborator.GetAll("noobquire", "github-stats-bot");
+            var issues = await client.Issue.GetAllForRepository(owner, repo, issueRequest);
+            var collaborators = await client.Repository.Collaborator.GetAll(owner, repo);
 
             foreach (var issue in issues)
             {
-                var comments = await client.Issue.Comment.GetAllForIssue("noobquire", "github-stats-bot", issue.Number);
+                var comments = await client.Issue.Comment.GetAllForIssue(owner, repo, issue.Number);
 
                 if (!comments.Any(c => collaborators.Any(col => col.Id == c.Id)))
                 {

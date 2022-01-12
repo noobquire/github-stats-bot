@@ -5,16 +5,22 @@ namespace GithubStatsBot
 {
     public class NotificationCenter
     {
+        private readonly long receiverId;
+
+        private readonly IConfiguration configuration;
         private readonly TelegramBotClient client;
 
-        public NotificationCenter()
+        public NotificationCenter(IConfiguration configuration)
         {
-            client = new TelegramBotClient("2084592091:AAHBMkIauYXO941cn_Wff_3FsHRZNj6aCHc");
+            this.configuration = configuration;
+            client = new TelegramBotClient(configuration.GetSection("MySettings:NotificationCenter:token").Value);
+
+            receiverId = int.Parse(configuration.GetSection("MySettings:NotificationCenter:receiver").Value);
         }
 
         public async Task SendNotification(NotificationType type, string message)
         {
-            await client.SendTextMessageAsync(430728363, type.ToString() + ": " + message);
+            await client.SendTextMessageAsync(receiverId, type.ToString() + ": " + message);
         }
 
         public async void SendStatistics(Statistics statistics)
@@ -23,8 +29,8 @@ namespace GithubStatsBot
                 $"Average time before being closed with a solution: {statistics.AvgTimeBeforeBeingClosed}\n" +
                 $"Number of issues created per week: {statistics.NumberOfIssuesCreated}\n" +
                 $"Number of issues closed per week: {statistics.NumberOfIssuesClosed}\n" +
-                $"Unanswered issues: {string.Join(" ", statistics.UnansweredIssues.Select(i => i.Title))}";
-            await client.SendTextMessageAsync(430728363, statisticsString);
+                $"Unanswered issues: {string.Join(", ", statistics.UnansweredIssues.Select(i => i.Title))}";
+            await client.SendTextMessageAsync(receiverId, statisticsString);
         }
     }
 }
