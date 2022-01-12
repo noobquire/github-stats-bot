@@ -62,8 +62,14 @@ namespace GithubStatsBot.Services
 
         private async Task<TimeSpan> GetAverageTimeBeforeBeingClosed()
         {
-            var issues = await client.Issue.GetAllForRepository(owner, repo);
-            var total = issues.Where(i => i.State == ItemState.Closed).Select(i => i.ClosedAt.Value - i.CreatedAt);
+            var issueRequest = new RepositoryIssueRequest
+            {
+                Filter = IssueFilter.All,
+                State = ItemStateFilter.Closed,
+            };
+
+            var issues = await client.Issue.GetAllForRepository(owner, repo, issueRequest);
+            var total = issues.Select(i => i.ClosedAt.Value - i.CreatedAt);
             var spans = total.Select(s => s.TotalHours);
 
             if (spans.Any())
